@@ -16,7 +16,7 @@ This repository implements the eleven projects of the
 specified to the byte by the curriculum and verified by its black-box tests on Linux, macOS,
 and Windows.
 
-**Status:** repository and toolchain ready; no projects implemented yet.
+**Status:** Implemented projects: 00-hello-world.
 
 ## C at a glance
 
@@ -37,7 +37,23 @@ and Windows.
 | Container image | `gcc:16-trixie`, pinned by digest ([`Containerfile`](Containerfile)) |
 | Native CI | GCC on Linux, Apple Clang on macOS, MinGW-w64 GCC on Windows |
 
-`make toolchain` verifies that the container and native toolchains are on this release line.
+| Unit tests | Plain C checks with the repository's own small runner (`src/tests/unit_test.[ch]`) |
+| Lint | Warning-free build with `-std=c17 -Wall -Wextra -Wpedantic -Wshadow -Wstrict-prototypes -Wconversion -Werror`, plus `clang-format --dry-run --Werror` |
+| Format | `clang-format -i` (release line 19), style in [`.clang-format`](.clang-format) (shared by every project) |
+| Dependencies | None (no package manager; Dependabot has no C ecosystem) |
+
+`make toolchain` verifies that the container and native toolchains are on this release line,
+and that `clang-format` is on release line 19 everywhere: the container image adds Debian
+trixie's `clang-format` (19.1.7), and native CI installs the same version from PyPI
+(`pip install clang-format==19.1.7`) on all three OSes. Locally, `pip install
+clang-format==19.1.7` gives the same formatter. The style ([`.clang-format`](.clang-format):
+Google, 100 columns) is shared with the C++ and Objective-C repositories.
+
+Each project builds into its own `build/` directory (`make clean` removes it). `make all`
+leaves the native executable in `build/bin/` (`dp-hello.exe` on Windows), and `make install`
+copies it to `$(BINDIR)`. On Windows, MinGW-w64 builds enter through `wmain` (`-municode`),
+convert the UTF-16 command line to UTF-8, and switch stdout and stderr to binary mode, so
+arguments and output bytes match Linux and macOS exactly.
 
 ## Layout
 
