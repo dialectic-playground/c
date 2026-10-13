@@ -6,7 +6,7 @@
 # project listed in IMPLEMENTED in the root Makefile.
 # - Container (podman): `make check` in the toolchain image (./Containerfile), on Linux.
 # - Native (Linux, macOS, Windows): `make check roundtrip` with DP_RUNTIME=local;
-#   toolchain: GCC (Linux), Apple Clang (macOS), and MinGW-w64 GCC (Windows) are preinstalled on the runners.
+#   toolchain: GCC on Linux, Apple Clang on macOS, MinGW-w64 GCC on Windows.
 # - Shared tooling, DCO, and the required "CI result" check, as in every repository.
 #
 # Actions are pinned to full commit SHAs (organization policy); Dependabot keeps them current.
@@ -68,7 +68,7 @@ jobs:
         run: command -v make || choco install make --no-progress -y
 
       - name: Show preinstalled compilers
-        run: echo "Using the runner's preinstalled toolchain: GCC (Linux), Apple Clang (macOS), and MinGW-w64 GCC (Windows) are preinstalled on the runners."
+        run: echo "Preinstalled on the runners (GCC on Linux, Apple Clang on macOS, MinGW-w64 GCC on Windows)"
 
       - name: make check roundtrip
         run: make check roundtrip

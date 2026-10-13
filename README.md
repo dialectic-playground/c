@@ -35,7 +35,7 @@ and Windows.
 | Release line | C17 (GCC 16 in the container) |
 | Build / package tool | make |
 | Container image | `gcc:16-trixie`, pinned by digest ([`Containerfile`](Containerfile)) |
-| Native CI | GCC (Linux), Apple Clang (macOS), and MinGW-w64 GCC (Windows) are preinstalled on the runners |
+| Native CI | GCC on Linux, Apple Clang on macOS, MinGW-w64 GCC on Windows |
 
 `make toolchain` verifies that the container and native toolchains are on this release line.
 
