@@ -1,5 +1,6 @@
 # Keeps GitHub Actions (SHA-pinned) and the toolchain image digest current.
-# Package ecosystems (make) are added when the first project's manifests exist.
+# C projects have no package manifests (make and the compiler only), and Dependabot has no
+# C ecosystem, so only actions and the image digest are tracked.
 version: 2
 updates:
   - package-ecosystem: github-actions
