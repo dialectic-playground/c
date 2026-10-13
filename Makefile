@@ -13,7 +13,7 @@
 
 # Project directories whose implementation is complete enough to build and test, in
 # curriculum order (for example: 00-hello-world 01-echo). CI covers exactly these.
-IMPLEMENTED :=
+IMPLEMENTED := 00-hello-world
 
 DP_HOST_GOALS += help roundtrip
 include tools/container.mk
@@ -30,6 +30,7 @@ STANDARD_FILES := LICENSE README.md Containerfile Makefile .editorconfig .gitatt
 ifeq ($(origin CC),default)
   CC := $(if $(filter Windows_NT,$(OS)),gcc,cc)
 endif
+CLANG_FORMAT ?= clang-format
 
 .PHONY: check check-repository toolchain projects roundtrip help
 
@@ -54,11 +55,14 @@ check-repository:
 	exit $$status
 
 # The native compiler differs by OS, so the toolchain is verified by a
-# language-standard compile-and-run probe rather than a version line.
+# language-standard compile-and-run probe rather than a version line. clang-format
+# (make lint / make format) must be on release line 19, as in the container, everywhere.
 toolchain:
 	python3 --version || python --version
 	make --version | head -1
 	$(CC) --version | head -1
+	$(CLANG_FORMAT) --version | head -1
+	@$(CLANG_FORMAT) --version | grep -q 'version 19\.' || { echo "toolchain: clang-format 19 is required (.clang-format)" >&2; exit 1; }
 	@probe="$${TMPDIR:-/tmp}/dp-probe-$$$$"; printf 'int main(void) { return 0; }\n' > "$$probe.c" && $(CC) -std=c17 -o "$$probe" "$$probe.c" && "$$probe" && rm -f "$$probe" "$$probe.exe" "$$probe.c" && echo "toolchain: C17 compile-and-run probe passed"
 
 projects:

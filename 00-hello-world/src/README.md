@@ -1,42 +1,52 @@
-# Source workspace: 00-hello-world
+# Source: 00-hello-world (C17)
 
-This directory is intentionally language-neutral. The curriculum supplies the specifications,
-tests, and document templates. **Implementations live in separate language repositories**
-(for example `dialectic-playground/py`, `dialectic-playground/rs`, `dialectic-playground/go`).
+`dp-hello`, implemented in C17 with the standard library only. The design is in `../hld.md`
+and `../lld.md`; the behavior is specified by
+`../../sdlc-curriculum/projects/00-hello-world/specs/SRS.md`, `shared/CLI-CONVENTIONS.md`, and
+the help text in `../../sdlc-curriculum/projects/00-hello-world/specs/user-manual.md`.
+
+```text
+src/
+├── dp_hello/              the tool
+│   ├── main.c             entry point: main (POSIX) or wmain (Windows, -municode)
+│   ├── platform.[ch]      Windows only: binary-mode stdout/stderr, UTF-16 → UTF-8 arguments
+│   ├── app.[ch]           program flow and exit statuses
+│   ├── cli.[ch]           option scanning (CONV-07 … CONV-12), syntax errors
+│   ├── validation.[ch]    NAME and COUNT validation, defaults
+│   ├── greeting.[ch]      greeting construction (pure)
+│   ├── usage_error.[ch]   usage-error type and exact CONV-13/14 diagnostic text
+│   ├── output.[ch]        help and version text; all writes to stdout and stderr
+│   └── program.h          canonical name and version
+└── tests/                 unit tests: plain C checks and a small runner
+    ├── unit_test.[ch]     runner (main), EXPECT / EXPECT_STRING / RUN_TEST
+    ├── test_support.[ch]  argument-list and diagnostic helpers
+    ├── test_cli.c         parsing
+    ├── test_validation.c  validation
+    ├── test_greeting.c    greeting construction
+    └── test_usage_error.c diagnostics, help and version texts
+```
+
+From `..`: `make all` (build into `build/bin/`), `make test` (unit tests, then the public
+black-box suite), `make lint`, `make format`, `make install`, `make clean`.
 
 ## Implementation contract
 
 An implementation of `00-hello-world` is complete when, from its project directory:
 
-1. `make all` builds these executables into `BIN_DIR`: **dp-hello**. On Windows they may
-   have an `.exe` suffix.
+1. `make all` builds these executables into `BIN_DIR`: **dp-hello**. Each is a native
+   executable (with an `.exe` suffix on Windows) or a script that starts with a `#!` line,
+   which works on every OS, including Windows (see `shared/templates/BASE-MAKEFILE`).
+   `make install` puts the executable, or a launcher, into `$(BINDIR)`. Script payloads go
+   under `$(LIBDIR)/<repository>/<project>/`, and `make uninstall` removes everything it
+   installed.
 2. Every standard target in `shared/templates/BASE-MAKEFILE` works (`all install uninstall
    test check lint format clean distclean`), implemented with that language's usual tools.
 3. `make test` runs the language's unit tests, then passes all 10 public black-box tests.
-4. `make test-hidden` passes all 10 hidden black-box tests on Linux, macOS, and Windows, as
-   run by `shared/ci/cross-platform-ci.yml`.
-5. The behavior matches `../../sdlc-curriculum/projects/00-hello-world/specs/SRS.md` and `shared/CLI-CONVENTIONS.md` byte-for-byte,
-   and the help text matches `../../sdlc-curriculum/projects/00-hello-world/specs/user-manual.md`.
+4. `make test-hidden` passes all 10 hidden black-box tests on Linux, macOS, and Windows.
+5. The behavior matches the SRS and `shared/CLI-CONVENTIONS.md` byte-for-byte, and the help
+   text matches the user manual.
 6. The white-box deliverables in `../` (`hld.md`, `lld.md`, `rtm.md`,
-   `master-test-plan.md`) are completed for that implementation.
+   `master-test-plan.md`) are completed for this implementation.
 7. The code follows the 20 engineering principles in the curriculum's root `README.md`.
-8. The repository's `Containerfile` provides the toolchain (the language's official image,
-   pinned by digest, plus `make` and `python3` ≥ 3.11), so every target works container-first
-   (`make test`) as well as natively (`DP_RUNTIME=local make test`).
-
-## Layout in a language repository
-
-See [`shared/templates/language/`](https://github.com/dialectic-playground/sdlc-curriculum/blob/main/shared/templates/language/README.md) for the full
-skeleton.
-
-```text
-<language-repo>/
-├── Containerfile             # toolchain image: official language image + make + python3
-├── sdlc-curriculum/          # git submodule of dialectic-playground/sdlc-curriculum
-└── 00-hello-world/
-    ├── Makefile              # copied from assignment/Makefile, with hooks filled in
-    ├── hld.md lld.md rtm.md master-test-plan.md
-    └── src/ …                # language-specific sources and unit tests
-```
-
-with `CURRICULUM_ROOT := ../sdlc-curriculum` in that Makefile.
+8. The repository's `Containerfile` provides the toolchain, so every target works
+   container-first (`make test`) as well as natively (`DP_RUNTIME=local make test`).
