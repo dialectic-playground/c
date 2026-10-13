@@ -29,7 +29,7 @@ and in the container.
 | Item | Version / location |
 | :-- | :-- |
 | dp-hello | `00-hello-world/src/dp_hello/` on branch `feat/00-hello-world` |
-| Unit tests | `00-hello-world/src/tests/` (33 tests) |
+| Unit tests | `00-hello-world/src/tests/` (34 tests) |
 | Public black-box suite | `tests/public/` (10 tests) |
 | Hidden black-box suite | `tests/private/` (10 tests, run by CI) |
 
@@ -65,7 +65,7 @@ and in the container.
 | T-04 | FR-03 | — | `test_empty_name_rejected` | `invalid argument '' for '--name'` / `'-n'` | unit |
 | T-05 | FR-06 | — | `test_only_the_winning_value_is_validated` | `-n '' -n B -c 0 -c 2` greets B twice | unit |
 | T-06 | FR-02 | — | `test_name_may_start_with_dash` | `--name -x`, `-n-x`, `-n --help` take the value | unit |
-| T-07 | CONV-12 | — | `test_help_and_version_stop_the_scan`, `test_earlier_error_beats_help` | `--help extra -x` → help; `-x --help` → error | unit |
+| T-07 | CONV-12 | — | `test_help_and_version_stop_the_scan`, `test_earlier_syntax_error_beats_help`, `test_operands_do_not_beat_help` | `--help extra -x` and `extra --help` → help; `-x --help` → error | unit |
 | T-08 | FR-10, CONV-08 | — | `test_unknown_long_option` | `--nam`, `--names=x`, `--=x` unrecognized, quoted whole | unit |
 | T-09 | FR-10 | — | `test_missing_values`, `test_flags_reject_values` | Exact CONV-13 texts | unit |
 | T-10 | FR-09, CONV-09 | — | `test_operands_are_rejected` | `-- -n`, `-`, `-- --` → extra operand | unit |
@@ -84,7 +84,7 @@ apply (no input is read).
 ### 4.4 Performance and resource testing
 NFR-02: `/usr/bin/time -f "%e s %M KiB" build/bin/dp-hello -c 1000 -n "Ada Lovelace"` reports
 0.00 s and about 1.4 MiB peak RSS on the Linux development host, well under 100 ms and
-32 MiB. The design bounds memory to one line buffer, independent of COUNT.
+32 MiB; as a native build, the limit applies without a runtime baseline (CONV-31). The design bounds memory to one line buffer, independent of COUNT.
 
 ## 5. Test environments
 
@@ -133,7 +133,7 @@ gets a unit test that fails without the fix.
 
 | Metric | Value |
 | :-- | :-- |
-| Unit tests (pass / total) | 33 / 33 |
+| Unit tests (pass / total) | 34 / 34 |
 | Coverage (line / branch, unit tests, gcov) | `cli.c` 100 % / 100 %, `validation.c` 100 % / 100 %, `greeting.c` 100 %, `usage_error.c` 92 % / 100 %; `app.c` and `output.c` are exercised by the black-box suites |
 | Public black-box (pass / 10) | 10 / 10 (container, Linux, macOS, Windows) |
 | Hidden black-box (pass / 10, from CI) | 10 / 10 |

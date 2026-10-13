@@ -71,7 +71,7 @@ starts no processes (NFR-07).
 `main` converts the command line to UTF-8 (Windows) and calls `app_run` with the arguments
 after the program name. `cli_parse` scans them and returns a `ParsedArguments`. For help or
 version, `output` writes the fixed text. For a usage error, `output` writes the diagnostic to
-stderr and `app` returns 2. Otherwise `validate_arguments` produces a `GreetingRequest` or a
+stderr and `app` returns 2 (an operand is reported only after the whole scan, so `--help` anywhere wins). Otherwise `validate_arguments` produces a `GreetingRequest` or a
 usage error; `output_greetings` formats the line once with `greeting_format` and writes it
 COUNT times. `app` returns 0, or 1 if stdout could not be written.
 
@@ -80,7 +80,7 @@ COUNT times. `app` returns 0, or 1 if stdout could not be written.
 | # | Decision | Alternatives considered | Rationale |
 | :-- | :-- | :-- | :-- |
 | D1 | Validate values after the scan | Validate each occurrence while scanning | FR-06: only the winning value is validated; `-c 0 -c 2` is valid |
-| D2 | The scan stops at the first `--help`, `--version`, or syntax error, and treats an operand as an immediate error | Collect all operands, then decide | CONV-12 scan order; dp-hello accepts no operands, so the first one is already the surplus |
+| D2 | The scan stops at the first `--help`, `--version`, or option syntax error; operands are only collected and rejected after the scan | Reject an operand as soon as it is reached | CONV-12 (curriculum v1.4.0): only syntax errors compete with `--help`/`--version`, so `extra --help` prints the help |
 | D3 | Errors are values (`UsageError`), formatted in one function | `fprintf` at each detection site | One mapping from error to text and status (§6); unit-testable without capturing stderr |
 | D4 | `greeting_format` and `usage_error_format` follow `snprintf` semantics | Return heap strings | Pure, allocation-free functions; the caller sizes the buffer |
 | D5 | Format the greeting once, write it COUNT times | Format per line; build all lines in memory | O(len(NAME)) memory regardless of COUNT |
@@ -109,7 +109,7 @@ files, and allocation of at most two small buffers.
 
 | Quality attribute | SRS reference | How the design achieves it |
 | :-- | :-- | :-- |
-| Performance / memory | NFR-02 | Native executable; one pass over the arguments; one line buffer; stdio buffering for up to 1000 lines |
+| Performance / memory | NFR-02, CONV-31 | Native executable (the memory limit applies as is, CONV-31); one pass over the arguments; one line buffer; stdio buffering for up to 1000 lines |
 | Portability | NFR-01 | `platform` unit; LF-only literals; binary streams on Windows; C17 standard library only |
 | Robustness | NFR-03 | Bounds-checked scanning, saturating COUNT parser, every return value checked; no aborts |
 | Security / input validation | NFR-07, FR-03, FR-05 | Reads only argv; values are copied, never interpreted as format strings |

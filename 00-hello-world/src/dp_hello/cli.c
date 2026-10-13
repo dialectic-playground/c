@@ -129,6 +129,7 @@ ParsedArguments cli_parse(size_t argument_count, const char* const arguments[]) 
                      arguments,
                      0,
                      {CLI_GREET, {NULL, NULL}, {NULL, NULL}, {USAGE_EXTRA_OPERAND, NULL, 0, NULL}}};
+  const char* first_operand = NULL;
   bool options_ended = false;
   bool keep_scanning = true;
   while (keep_scanning && scanner.next < scanner.count) {
@@ -139,10 +140,13 @@ ParsedArguments cli_parse(size_t argument_count, const char* const arguments[]) 
       keep_scanning = scan_long_option(&scanner, token);
     } else if (!options_ended && token[0] == '-' && token[1] != '\0') {
       keep_scanning = scan_short_option(&scanner, token);
-    } else {
-      /* dp-hello accepts no operands (FR-09). */
-      keep_scanning = fail(&scanner, USAGE_EXTRA_OPERAND, token, strlen(token));
+    } else if (first_operand == NULL) {
+      first_operand = token; /* Operands are only collected during the scan (CONV-12). */
     }
+  }
+  /* dp-hello accepts no operands (FR-09); checked after the scan, so --help still wins. */
+  if (scanner.result.action == CLI_GREET && first_operand != NULL) {
+    (void)fail(&scanner, USAGE_EXTRA_OPERAND, first_operand, strlen(first_operand));
   }
   return scanner.result;
 }

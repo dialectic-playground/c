@@ -29,8 +29,9 @@ typedef struct {
 
 /*
  * Scans `arguments` (the command line without the program name) from left to right. Stops at
- * the first --help or --version, or at the first syntax error or operand. Never allocates;
- * every pointer in the result points into `arguments` or at a string literal.
+ * the first --help or --version, or at the first option syntax error. Operands are collected
+ * during the scan and rejected after it (CONV-12), so `extra --help` prints the help. Never
+ * allocates; every pointer in the result points into `arguments` or at a string literal.
  */
 ParsedArguments cli_parse(size_t argument_count, const char* const arguments[]);
 

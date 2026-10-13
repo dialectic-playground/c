@@ -75,8 +75,9 @@ quoted as a whole UTF-8 character. Every variant exits with status 2 and is foll
 - **Errors:** every variant except `USAGE_INVALID_VALUE`.
 - **Algorithm:** for each token: after `--` every token is an operand; `--` sets that state;
   a token starting with `--` goes to `scan_long_option`; `-` + at least one byte goes to
-  `scan_short_option`; anything else (including `-`) is `USAGE_EXTRA_OPERAND`. Stop at the
-  first error, `--help`, or `--version`. `scan_long_option` splits at the first `=`, compares
+  `scan_short_option`; anything else (including `-`) is an operand, and the first one is
+  remembered. Stop at the first option syntax error, `--help`, or `--version`. After the scan,
+  if the action is still `CLI_GREET` and an operand was seen, report `USAGE_EXTRA_OPERAND`. `scan_long_option` splits at the first `=`, compares
   the name exactly with `name`, `count`, `help`, `version` (no abbreviations), takes the value
   from after `=` or the next token (which may start with `-`), and reports a flag given `=…`.
   `scan_short_option` looks only at the first letter, because both short options take a value:
@@ -147,8 +148,9 @@ quoted as a whole UTF-8 character. Every variant exits with status 2 and is foll
 ## 4. Algorithms
 Only the scan is non-trivial; see §3.1. Scanning stops at the first decisive token, so
 `--help extra -x` prints help (FR-07) while `-x --help` reports `-x` (CONV-12). Values are not
-validated during the scan (FR-06), so `--count 0 --help` prints help. An operand is reported as
-soon as it is reached, because dp-hello accepts none. An unknown short option is quoted as
+validated during the scan (FR-06), so `--count 0 --help` prints help. Operands are only collected
+during the scan and rejected after it (CONV-12 as clarified in curriculum v1.4.0), so
+`extra --help` prints help while `extra -x` reports `-x`, and `extra` alone reports the operand. An unknown short option is quoted as
 its whole UTF-8 sequence (lead byte plus continuation bytes), so `-ë` gives
 `invalid option -- 'ë'` rather than a broken byte.
 

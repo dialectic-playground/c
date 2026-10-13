@@ -51,11 +51,11 @@ tests are P01 … P10. The hidden suite runs in CI on Linux, macOS, and Windows 
 | FR-06 | Last occurrence wins; validate the winner only | HLD D1, LLD §3.1, §3.3 | `cli.c::store_value`, `validation.c::validate_arguments` | `test_last_occurrence_wins`, `test_only_the_winning_value_is_validated` | Verified |
 | FR-07 | Help text, scan order | LLD §3.1, §3.6 | `cli.c::scan_long_option`, `output.c::HELP_TEXT`, `app.c::app_run` | `test_help_and_version_stop_the_scan`, `test_help_text_layout`, P07 | Verified |
 | FR-08 | Version line | LLD §3.6 | `output.c::VERSION_TEXT`, `app.c::app_run` | `test_version_text`, P08 | Verified |
-| FR-09 | Operands rejected | LLD §3.1 | `cli.c::cli_parse` | `test_operands_are_rejected`, P10 | Verified |
+| FR-09 | Operands rejected (after the scan) | LLD §3.1 | `cli.c::cli_parse` | `test_operands_are_rejected`, `test_operands_do_not_beat_help`, P10 | Verified |
 | FR-10 | Unknown/malformed options, no abbreviations | LLD §3.1 | `cli.c::scan_long_option`, `cli.c::scan_short_option` | `test_unknown_short_option`, `test_unknown_long_option`, `test_missing_values`, `test_flags_reject_values`, P09 | Verified |
 | FR-11 | Nothing on stdout on error | HLD §6, LLD §3.7 | `app.c::app_run` | P09, P10 (empty stdout) | Verified |
 | NFR-01 | Byte-identical, LF only | HLD §5, LLD §5 | `platform.c::platform_use_binary_streams`, `platform.c::platform_utf8_arguments` | P01 … P10 on Linux, macOS, Windows (CI) | Verified |
-| NFR-02 | < 100 ms, < 32 MiB | HLD §7 | `output.c::output_greetings` | MTP §4.4 measurement | Verified |
+| NFR-02 | < 100 ms, < 32 MiB (native build: limit applies as is, CONV-31) | HLD §7 | `output.c::output_greetings` | MTP §4.4 measurement | Verified |
 | NFR-03 | No crash for any arguments | HLD §7, LLD §3.1, §3.2 | `cli.c::cli_parse`, `validation.c::parse_count` | `test_count_boundaries`, `test_missing_values`, MTP §4.3 (sanitizers) | Verified |
 | NFR-04 | Separate units | HLD §3.2 | `cli.c`, `validation.c`, `greeting.c`, `output.c` | Design review (LLD §8) | Verified |
 | NFR-05 | Pure, unit-tested greeting | LLD §3.4 | `greeting.c::greeting_format` | `test_is_pure`, `test_default_name`, `test_length_query_and_truncation` | Verified |
@@ -71,7 +71,7 @@ tests are P01 … P10. The hidden suite runs in CI on Linux, macOS, and Windows 
 | CONV-09 | `--` terminator | LLD §3.1 | `cli.c::cli_parse` | `test_terminator_alone_is_accepted`, `test_operands_are_rejected` | Verified |
 | CONV-10 | Operands (incl. `-`) | LLD §3.1 | `cli.c::cli_parse` | `test_operands_are_rejected`, P10 | Verified |
 | CONV-11 | Last occurrence wins | LLD §3.1 | `cli.c::store_value` | `test_last_occurrence_wins` | Verified |
-| CONV-12 | Scan order; errors before output | HLD D2, LLD §4 | `cli.c::cli_parse`, `app.c::app_run` | `test_help_and_version_stop_the_scan`, `test_earlier_error_beats_help` | Verified |
+| CONV-12 | Scan order; errors before output | HLD D2, LLD §4 | `cli.c::cli_parse`, `app.c::app_run` | `test_help_and_version_stop_the_scan`, `test_earlier_syntax_error_beats_help`, `test_operands_do_not_beat_help` | Verified |
 | CONV-13 | Exact usage messages | LLD §2.3, §3.5 | `usage_error.c::usage_error_format` | `test_every_message_format`, `test_cli.c` (all error tests), P09, P10 | Verified |
 | CONV-14 | "Try" line, exit 2 | LLD §3.5, §3.7 | `usage_error.c::usage_error_format`, `app.c::report_usage_error` | `test_every_message_format`, P09, P10 | Verified |
 | CONV-15 | Values quoted verbatim, `''` when empty | LLD §3.5 | `usage_error.c::usage_error_format` | `test_values_are_not_escaped`, `test_empty_name_rejected` | Verified |
@@ -81,6 +81,7 @@ tests are P01 … P10. The hidden suite runs in CI on Linux, macOS, and Windows 
 | CONV-24 | No crash or stack trace | HLD §7 | all units (checked returns, bounded scans) | MTP §4.3 | Verified |
 | CONV-25 | EPIPE: stop promptly, no diagnostic | LLD §3.6, §5 | `output.c::output_greetings` | MTP T-12 (`dp-hello -c 1000 \| head -1`) | Verified |
 | CONV-26 | stdin not read | HLD §3.1 | no stdin access anywhere | Inspection; P01 … P10 (stdin is the null device) | Verified |
+| CONV-31 | Memory limits apply to native builds | HLD §7 | native executable (no runtime baseline) | MTP §4.4 measurement | Verified |
 | CONV-27 … CONV-30 | Harness conditions | MTP §3 | native executable in `build/bin` | P01 … P10 | Verified |
 
 ## 3. Backward traceability (test → requirement)
@@ -104,7 +105,8 @@ tests are P01 … P10. The hidden suite runs in CI on Linux, macOS, and Windows 
 | `test_bundled_and_separate_values` | unit | FR-04, CONV-07, CONV-08 |
 | `test_last_occurrence_wins` | unit | FR-06, CONV-11 |
 | `test_help_and_version_stop_the_scan` | unit | FR-07, FR-08, CONV-12 |
-| `test_earlier_error_beats_help` | unit | CONV-12 |
+| `test_earlier_syntax_error_beats_help` | unit | CONV-12 |
+| `test_operands_do_not_beat_help` | unit | FR-07, FR-09, CONV-12 |
 | `test_unknown_short_option` | unit | FR-10, CONV-05, CONV-13 |
 | `test_unknown_long_option` | unit | FR-10, CONV-08, CONV-13 |
 | `test_missing_values` | unit | FR-10, CONV-13 |
@@ -138,7 +140,7 @@ tests are P01 … P10. The hidden suite runs in CI on Linux, macOS, and Windows 
 | User requirements (UR) | 12 | 12 | 12 | 12 |
 | Functional (FR) | 11 | 11 | 11 | 11 |
 | Non-functional (NFR) | 7 | 7 | 7 | 7 |
-| Conventions (CONV) | 24 applicable of 30 | 24 | 24 | 24 |
+| Conventions (CONV) | 25 applicable of 31 | 25 | 25 | 25 |
 
 ## 5. Gaps and justifications
 No applicable requirement is unverified. Not applicable to dp-hello, which reads no input and

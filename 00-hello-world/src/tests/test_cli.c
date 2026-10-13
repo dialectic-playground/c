@@ -85,9 +85,18 @@ static void test_help_and_version_stop_the_scan(TestContext* context) {
   EXPECT(context, parse_list(ARGS("--count", "0", "--help")).action == CLI_HELP);
 }
 
-static void test_earlier_error_beats_help(TestContext* context) {
+static void test_earlier_syntax_error_beats_help(TestContext* context) {
   expect_error(context, ARGS("-x", "--help"), "dp-hello: invalid option -- 'x'\n" TRY);
-  expect_error(context, ARGS("extra", "--version"), "dp-hello: extra operand 'extra'\n" TRY);
+  expect_error(context, ARGS("--nme", "--version"), "dp-hello: unrecognized option '--nme'\n" TRY);
+  expect_error(context, ARGS("--help=1", "--help"),
+               "dp-hello: option '--help' doesn't allow an argument\n" TRY);
+  expect_error(context, ARGS("extra", "-x", "--help"), "dp-hello: invalid option -- 'x'\n" TRY);
+}
+
+static void test_operands_do_not_beat_help(TestContext* context) {
+  EXPECT(context, parse_list(ARGS("extra", "--help")).action == CLI_HELP);
+  EXPECT(context, parse_list(ARGS("extra", "--version")).action == CLI_VERSION);
+  EXPECT(context, parse_list(ARGS("one", "two", "-n", "Ada", "--help")).action == CLI_HELP);
 }
 
 static void test_unknown_short_option(TestContext* context) {
@@ -131,6 +140,8 @@ static void test_operands_are_rejected(TestContext* context) {
   expect_error(context, ARGS("--", "-n"), "dp-hello: extra operand '-n'\n" TRY);
   expect_error(context, ARGS("--", "--help"), "dp-hello: extra operand '--help'\n" TRY);
   expect_error(context, ARGS("--", "--"), "dp-hello: extra operand '--'\n" TRY);
+  expect_error(context, ARGS("one", "-n", "Ada"), "dp-hello: extra operand 'one'\n" TRY);
+  expect_error(context, ARGS("--", "--help", "x"), "dp-hello: extra operand '--help'\n" TRY);
 }
 
 static void test_terminator_alone_is_accepted(TestContext* context) {
@@ -146,7 +157,8 @@ void run_cli_tests(TestContext* context) {
   RUN_TEST(context, test_bundled_and_separate_values);
   RUN_TEST(context, test_last_occurrence_wins);
   RUN_TEST(context, test_help_and_version_stop_the_scan);
-  RUN_TEST(context, test_earlier_error_beats_help);
+  RUN_TEST(context, test_earlier_syntax_error_beats_help);
+  RUN_TEST(context, test_operands_do_not_beat_help);
   RUN_TEST(context, test_unknown_short_option);
   RUN_TEST(context, test_unknown_long_option);
   RUN_TEST(context, test_missing_values);
