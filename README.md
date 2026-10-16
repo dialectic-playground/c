@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
+
+- [c](#c)
+  - [C at a glance](#c-at-a-glance)
+  - [Toolchain](#toolchain)
+  - [Layout](#layout)
+  - [Development](#development)
+  - [Implementing a project](#implementing-a-project)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/dialectic-playground/.github/main/assets/c/dist/logo-dark.svg">
@@ -11,7 +27,7 @@ C implementation of the Dialectic Playground SDLC curriculum.
 
 📖 **Documentation:** <https://dialectic-playground.github.io/docs/reference/languages/c/>
 
-This repository implements the eleven projects of the
+This repository implements the fifty-three projects of the
 [SDLC curriculum](https://github.com/dialectic-playground/sdlc-curriculum) in C. Each project is
 specified to the byte by the curriculum and verified by its black-box tests on Linux, macOS,
 and Windows.
@@ -20,22 +36,22 @@ and Windows.
 
 ## C at a glance
 
-| Aspect | C |
-| :-- | :-- |
-| File extension | `.c` |
-| CLI classification | Included |
-| Image category | Native Toolchain |
-| Access to OS primitives | Absolute & Direct (POSIX system calls) |
-| Entry-point mechanism | Kernel drops argc and argv pointers directly into main() |
+| Aspect                  | C                                                        |
+| :---------------------- | :------------------------------------------------------- |
+| File extension          | `.c`                                                     |
+| CLI classification      | Included                                                 |
+| Image category          | Native Toolchain                                         |
+| Access to OS primitives | Absolute & Direct (POSIX system calls)                   |
+| Entry-point mechanism   | Kernel drops argc and argv pointers directly into main() |
 
 ## Toolchain
 
-| | |
-| :-- | :-- |
-| Release line | C17 (GCC 16 in the container) |
-| Build / package tool | make |
-| Container image | `gcc:16-trixie`, pinned by digest ([`Containerfile`](Containerfile)) |
-| Native CI | GCC on Linux, Apple Clang on macOS, MinGW-w64 GCC on Windows |
+|                      |                                                                      |
+| :------------------- | :------------------------------------------------------------------- |
+| Release line         | C17 (GCC 16 in the container)                                        |
+| Build / package tool | make                                                                 |
+| Container image      | `gcc:16-trixie`, pinned by digest ([`Containerfile`](Containerfile)) |
+| Native CI            | GCC on Linux, Apple Clang on macOS, MinGW-w64 GCC on Windows         |
 
 | Unit tests | Plain C checks with the repository's own small runner (`src/tests/unit_test.[ch]`) |
 | Lint | Warning-free build with `-std=c17 -Wall -Wextra -Wpedantic -Wshadow -Wstrict-prototypes -Wconversion -Werror`, plus `clang-format --dry-run --Werror` |
@@ -57,14 +73,14 @@ arguments and output bytes match Linux and macOS exactly.
 
 ## Layout
 
-| Path | Contents |
-| :--- | :--- |
-| `00-hello-world/` … `10-sys-monitor/` | One workspace per curriculum project: `Makefile` (with `DP_*` hooks), HLD, LLD, RTM, master test plan, and `src/` |
-| `sdlc-curriculum/` | The curriculum, as a git submodule pinned to a release tag |
-| `Makefile` | `make check` (repository, toolchain, implemented projects), `toolchain`, `projects`, `roundtrip` |
-| `Containerfile`, `.devcontainer/` | The toolchain image and the matching dev container |
-| `tools/dp-run`, `tools/container.mk` | Shared container tooling (copies of the canonical files in `dialectic-playground/.github`) |
-| `.github/workflows/ci.yml` | CI: container and native (Linux, macOS, Windows) `make` targets, shared-tooling check, DCO |
+| Path                                 | Contents                                                                                                          |
+| :----------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| `00-hello-world/` … `52-spacecraft/` | One workspace per curriculum project: `Makefile` (with `DP_*` hooks), HLD, LLD, RTM, master test plan, and `src/` |
+| `sdlc-curriculum/`                   | The curriculum, as a git submodule pinned to a release tag                                                        |
+| `Makefile`                           | `make check` (repository, toolchain, implemented projects), `toolchain`, `projects`, `roundtrip`                  |
+| `Containerfile`, `.devcontainer/`    | The toolchain image and the matching dev container                                                                |
+| `tools/dp-run`, `tools/container.mk` | Shared container tooling (copies of the canonical files in `dialectic-playground/.github`)                        |
+| `.github/workflows/ci.yml`           | CI: container and native (Linux, macOS, Windows) `make` targets, shared-tooling check, DCO                        |
 
 ## Development
 

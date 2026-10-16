@@ -1,3 +1,13 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
+
+- [Source: 00-hello-world (C17)](#source-00-hello-world-c17)
+  - [Implementation contract](#implementation-contract)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Source: 00-hello-world (C17)
 
 `dp-hello`, implemented in C17 with the standard library only. The design is in `../hld.md`
@@ -40,7 +50,7 @@ An implementation of `00-hello-world` is complete when, from its project directo
    under `$(LIBDIR)/<repository>/<project>/`, and `make uninstall` removes everything it
    installed.
 2. Every standard target in `shared/templates/BASE-MAKEFILE` works (`all install uninstall
-   test check lint format clean distclean`), implemented with that language's usual tools.
+test check lint format clean distclean`), implemented with that language's usual tools.
 3. `make test` runs the language's unit tests, then passes all 10 public black-box tests.
 4. `make test-hidden` passes all 10 hidden black-box tests on Linux, macOS, and Windows.
 5. The behavior matches the SRS and `shared/CLI-CONVENTIONS.md` byte-for-byte, and the help

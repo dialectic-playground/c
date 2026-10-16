@@ -19,7 +19,7 @@ CURRICULUM_ROOT ?= ../sdlc-curriculum
 
 # Native compilers differ by OS (GCC, Clang, MinGW); default to the platform's C compiler.
 ifeq ($(origin CC),default)
-  CC := $(if $(filter Windows_NT,$(OS)),gcc,cc)
+CC := $(if $(filter Windows_NT,$(OS)),gcc,cc)
 endif
 CLANG_FORMAT ?= clang-format
 

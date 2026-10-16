@@ -28,7 +28,7 @@ STANDARD_FILES := LICENSE README.md Containerfile Makefile .editorconfig .gitatt
 	$(CURRICULUM_ROOT)/curriculum.toml
 # Native compilers differ by OS (GCC, Clang, MinGW); default to the platform's C/C++ compiler.
 ifeq ($(origin CC),default)
-  CC := $(if $(filter Windows_NT,$(OS)),gcc,cc)
+	CC := $(if $(filter Windows_NT,$(OS)),gcc,cc)
 endif
 CLANG_FORMAT ?= clang-format
 
@@ -51,7 +51,7 @@ check-repository:
 		matches=$$(git grep -n "$$marker" -- . ':!.github' ':!tools' ':!$(CURRICULUM_ROOT)'); \
 	else \
 		matches=$$(grep -rn --exclude-dir=.git --exclude-dir=.github --exclude-dir=tools \
-		        --exclude-dir=$(CURRICULUM_ROOT) "$$marker" .); \
+						--exclude-dir=$(CURRICULUM_ROOT) "$$marker" .); \
 	fi; \
 	if [ -n "$$matches" ]; then \
 		printf '%s\n' "$$matches"; echo "replace every $$marker marker listed above"; status=1; \
